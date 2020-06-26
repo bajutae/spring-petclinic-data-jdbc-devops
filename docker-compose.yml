@@ -22,8 +22,8 @@ services:
       - MYSQL_USERNAME=root
       - MYSQL_PASSWORD=petclinic
     volumes:
-      - ../logs/petclinic/:/src/log 
-    #user: "1000"
+      - ../logs/petclinic/:/logs
+    user: "1000"
     restart: always
     links: 
       - mysql

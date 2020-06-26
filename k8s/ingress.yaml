@@ -1,15 +1,14 @@
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: ingress-devops
+  name: test-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  #- host: foo.bar.com     # host를 명시하지 않으면 ip로 연결
   - http:
       paths:               # 각 path는 백엔드와 연결됨
-      - path: /testpath
+      - path: /
         backend:           # 연결될 서비스이름과 port
-          serviceName: test
-          servicePort: 80
+          serviceName: petclinic
+          servicePort: 8080
