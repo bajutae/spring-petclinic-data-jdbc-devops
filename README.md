@@ -65,7 +65,7 @@ $ ./devops.sh petclinic_scale_in
 $ ./devops.sh petclinic_scale_out
 ```
 
-## 요구사항
+## 요구사항 세부 설명 
 - [x] gradle을 사용하여 어플리케이션과 도커이미지를 빌드한다.
   - maven -> gradle 변환
   
@@ -76,7 +76,7 @@ $ ./devops.sh petclinic_scale_out
   - [build.gradle](https://github.com/bajutae/spring-petclinic-data-jdbc-devops/blob/master/build.gradle) 빌드 실패하지 않게 수정 작업
 
 - [x] 어플리케이션의 log는 host의 /logs 디렉토리에 적재되도록 한다.
-  - application.property에 다음 항목 추가 logging.file.path=/logs
+  - [application.property](https://github.com/bajutae/spring-petclinic-data-jdbc-devops/blob/master/src/main/resources/application.properties)에 다음 항목 추가 logging.file.path=/logs
   - Dockerfile 에 **VOLUME ["/logs"]** 추가
   - log 확인
 
@@ -120,12 +120,12 @@ livenessProbe:
 ```
 
 - [X] 종료 시 30초 이내에 프로세스가 종료되지 않으면 SIGKILL로 강제 종료 시킨다.
-  - **terminationGracePeriodSeconds: 30** 30초 후에 강제로 삭제된다. 
+  - [petclinic.yaml](https://github.com/bajutae/spring-petclinic-data-jdbc-devops/blob/master/k8s/init/petclinic.yaml) 에 **terminationGracePeriodSeconds: 30** 30초 후에 강제로 삭제된다. 
 - [X] 배포 시와 scale in/out 시 유실되는 트래픽이 없어야 한다.
   - 배포시 Roling update와 블루/그린 배포로 트래픽 유실없이 실행
 - [X] 어플리케이션 프로세스는 root 계정이 아닌 uid:1000으로 실행한다.
-  - petclinic.yaml 파일에 securityContext runAsUser: 1000 추가
-  - 다음으로 확인
+  - [petclinic.yaml](https://github.com/bajutae/spring-petclinic-data-jdbc-devops/blob/master/k8s/init/petclinic.yaml) 파일에 **securityContext runAsUser: 1000** 추가
+  - 확인
 
 ```shell
 MacBook-Pro-2:init jtpark$ k get pod
@@ -142,11 +142,36 @@ uid=1000 gid=0(root)
 ```
 
 - [X] DB도 kubernetes에서 실행하며 재 실행 시에도 변경된 데이터는 유실되지 않도록 설정한다. 어플리케이션과 DB는 cluster domain을 이용하여 통신한다.
-  - statefulset 으로 처리하여 데이터 유실 방지
+  - [mysql_statefulset.yaml](https://github.com/bajutae/spring-petclinic-data-jdbc-devops/blob/master/k8s/init/mysql_statefulset.yaml) statefulset 으로 처리하여 데이터 유실 방지
 - [x] nginx-ingress-controller를 통해 어플리케이션에 접속이 가능하다.
   - nginx-ingress-controller 설치
-- [x] namespace는 default를 사용한다.
-- [X] README.md 파일에 실행 방법을 기술한다.
 
-## 그 외 개인적인 문제점 
-- [ ] docker 에러남
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud/deploy.yaml
+```
+  - [ingress.yaml](https://github.com/bajutae/spring-petclinic-data-jdbc-devops/blob/master/k8s/init/ingress.yaml)을 이용해 서비스 패스를 설정한다. 
+- [x] namespace는 default를 사용한다.
+  - ingress nginx controller를 제외한 생성한 자원 default
+```shell
+  k get all -n default
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/mysql-0                      2/2     Running   0          21m
+pod/mysql-1                      0/2     Pending   0          20m
+pod/petclinic-69d75fc57c-njdz9   1/1     Running   6          21m
+pod/petclinic-69d75fc57c-xnb6h   1/1     Running   6          21m
+
+NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP          38d
+service/petclinic    NodePort    10.101.40.183   <none>        8080:32300/TCP   21m
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/petclinic   2/2     2            2           21m
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/petclinic-69d75fc57c   2         2         2       21m
+
+NAME                     READY   AGE
+statefulset.apps/mysql   1/2     21m
+  ```
+
+- [X] README.md 파일에 실행 방법을 기술한다.
