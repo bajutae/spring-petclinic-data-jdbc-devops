@@ -7,7 +7,7 @@ metadata:
 spec:
   rules:
   - http:
-      paths:               # 각 path는 백엔드와 연결됨
+      paths:    
       - path: /
         backend:           # 연결될 서비스이름과 port
           serviceName: petclinic

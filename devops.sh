@@ -2,7 +2,7 @@
 BUILD_PATH=$(cd "build" && pwd)
 BASE_PATH=$(pwd)
 
-deploy() {
+build() {
   echo
   echo "Strartig Deploy spring-petclinic-data-jdbc ."
 
@@ -13,21 +13,21 @@ deploy() {
   #cd $BUILD_PATH
   #version=`cat dockerBuildVersion.txt`
   docker build -f DockerfilePetClinic -t petclinic .
-  docker-compose -f docker-compose.yml up -d
+
+  ## not this test k8s deploy
+  #docker-compose -f docker-compose.yml up -d
   #docker container exec nginx nginx -s reload
   echo
   echo " All Container Deploy Complieted!"
-  docker ps 
 }
 
 k8s_deploy() {
   echo
-  echo "## Strartig k8s yaml . ##"
-  echo "## install ingress nginx controller## "
+  echo "## Init petclinic k8s yaml . ##"
   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud/deploy.yaml
-  kubectl apply -f ./k8s
+  kubectl apply -f ./k8s/init
   echo
-  echo "## k8s apply Complieted! ##"
+  echo "## k8s Completed! ##"
 }
 
 k8s_delete() {
@@ -40,19 +40,9 @@ k8s_delete() {
   echo
   echo "## k8s Delete Complieted! ##"
 }
+
 case "$1" in
-  start)
-    start
-    ;;
-  stop)
-    stop
-    ;;
-  restart)
-    restart
-    ;;
-  status)
-    status
-    ;;
+
   deploy)
     deploy
     ;;
@@ -63,6 +53,6 @@ case "$1" in
     k8s_delete
     ;;
 *)
-  echo "Usage: $0 {start | stop | restart | status | deploy | k8s_deploy | k8s_delete}"
+  echo "Usage: $0 {deploy | k8s_deploy | k8s_delete}"
 esac
 exit 0
