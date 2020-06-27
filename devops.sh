@@ -35,8 +35,6 @@ k8s_delete() {
   echo "## Delete k8s yaml . ##"
   echo
   kubectl delete svc,deploy petclinic
-  kubectl delete svc,deploy,configmap mysql
-  kubectl delete namespace ingress-nginx
   echo
   echo "## k8s Delete Completed! ##"
 }

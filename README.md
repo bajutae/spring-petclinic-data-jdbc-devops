@@ -40,7 +40,7 @@ $ cd spring-petclinic-data-jdbc-devops
 $ ./devops.sh build
 ```
 
-## Kubernetes 자원 deploy
+## Kubernetes 관련 실습 방법
 
 - 최초 petclinic 어플리케이션 배포 및 기타 자원 배포
 
