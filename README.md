@@ -24,14 +24,51 @@ Server Version: version.Info{Major:"1", Minor:"16+", GitVersion:"v1.16.6-beta.0"
 ## 요구사항
 - [x] gradle을 사용하여 어플리케이션과 도커이미지를 빌드한다.
   - maven -> gradle 변환
-- [ ] 어플리케이션의 log는 host의 /logs 디렉토리에 적재되도록 한다.
+- [x] 어플리케이션의 log는 host의 /logs 디렉토리에 적재되도록 한다.
+  - application.property에 다음 항목 추가 logging.file.path=/logs
+  - Dockerfile 에 **VOLUME ["/logs"]** 추가
+  - log 확인
+  ```
+  MacBook-Pro-2:spring-petclinic-data-jdbc-devops jtpark$ k get po
+NAME                         READY   STATUS    RESTARTS   AGE
+mysql-dccdc87c4-dlphk        1/1     Running   0          3m44s
+petclinic-6d847db9b7-bghx5   1/1     Running   0          3m44s
+MacBook-Pro-2:spring-petclinic-data-jdbc-devops jtpark$ k exec -it petclinic-6d847db9b7-bghx5 sh
+/ # ls
+app.jar  dev      home     logs     mnt      proc     run      srv      tmp      var
+bin      etc      lib      media    opt      root     sbin     sys      usr
+/ # cd logs/
+/logs # ls
+spring.log
+/logs # tail -f spring.log 
+2020-06-27 03:09:58.382  INFO [,,,] 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 2 migrations (execution time 00:00.128s)
+2020-06-27 03:09:58.399  INFO [,,,] 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `petclinic`: 002
+2020-06-27 03:09:58.401  INFO [,,,] 1 --- [main] o.f.core.internal.command.DbMigrate      : Schema `petclinic` is up to date. No migration necessary.
+2020-06-27 03:10:01.668  INFO [,,,] 1 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2020-06-27 03:10:05.646  INFO [,,,] 1 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 18 endpoint(s) beneath base path '/manage'
+2020-06-27 03:10:05.893  INFO [,,,] 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2020-06-27 03:10:05.936  INFO [,,,] 1 --- [main] o.s.s.petclinic.PetClinicApplication     : Started PetClinicApplication in 29.397 seconds (JVM running for 30.984)
+2020-06-27 03:12:31.005  INFO [,,,] 1 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2020-06-27 03:12:31.007  INFO [,,,] 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2020-06-27 03:12:31.062  INFO [,,,] 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 54 ms
+  ```
+
 - [ ] 정상 동작 여부를 반환하는 api를 구현하며, 10초에 한번 체크하도록 한다. 3번 연속 체크에 실패하 면 어플리케이션은 restart 된다.
+  - 음 저기 만들걸 참고 하자
 - [ ] 종료 시 30초 이내에 프로세스가 종료되지 않으면 SIGKILL로 강제 종료 시킨다.
+  - 어떻게 ???
 - [ ] 배포 시와 scale in/out 시 유실되는 트래픽이 없어야 한다.
-- [ ] 어플리케이션 프로세스는 root 계정이 아닌 uid:1000으로 실행한다.
+  - 블루/그린 ? 아니면 그냥 롤링 업데이트 ?
+- [X] 어플리케이션 프로세스는 root 계정이 아닌 uid:1000으로 실행한다.
+  - petclinic에 uid를 1000 함
 - [ ] DB도 kubernetes에서 실행하며 재 실행 시에도 변경된 데이터는 유실되지 않도록 설정한다. 어플리케이션과 DB는 cluster domain을 이용하여 통신한다.
   - statefulset으로 처리
+  - cluster domain 처리가 안됨
 - [x] nginx-ingress-controller를 통해 어플리케이션에 접속이 가능하다.
   - nginx-ingress-controller 설치
 - [x] namespace는 default를 사용한다.
 - [ ] README.md 파일에 실행 방법을 기술한다.
+  - 파일 실행방법을 자세하게 한다. 
+
+## 그 외 개인적인 문제점 
+- [ ] docker 에러남
