@@ -31,7 +31,6 @@
 
 ```shell
 $ git clone https://github.com/bajutae/spring-petclinic-data-jdbc-devops.git
-$ cd spring-petclinic-data-jdbc-devops
 ```
 
 - Docker Build & 이미지 만들기
@@ -105,9 +104,11 @@ spring.log
 2020-06-27 03:12:31.062  INFO [,,,] 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 54 ms
 ```
 
-- [] 정상 동작 여부를 반환하는 api를 구현하며, 10초에 한번 체크하도록 한다. 3번 연속 체크에 실패하 면 어플리케이션은 restart 된다.
+- [ ] 정상 동작 여부를 반환하는 api를 구현하며, 10초에 한번 체크하도록 한다. 3번 연속 체크에 실패하 면 어플리케이션은 restart 된다.
   - 정상 동작 여부 반환 API는 구현못함
   - 컨테이너 설정에서 liveness를 설정한다. 스프링부트의 api를 이용한다. 
+  - [petclinic.yaml](https://github.com/bajutae/spring-petclinic-data-jdbc-devops/blob/master/k8s/init/petclinic.yaml) 에 설정
+  - liveness는 헬스체크가 되지 않으면 POD를 재부팅한다. 
 
 ```shell
 livenessProbe:
