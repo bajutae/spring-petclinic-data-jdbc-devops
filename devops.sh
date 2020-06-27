@@ -41,10 +41,21 @@ k8s_delete() {
   echo "## k8s Delete Complieted! ##"
 }
 
+petclinic_deploy() {
+  echo
+  echo "## Deploy petclinic v2 ##"
+  echo
+  kubectl delete svc,deploy petclinic
+  kubectl delete svc,deploy,configmap mysql
+  kubectl delete namespace ingress-nginx
+  echo
+  echo "## k8s Delete Complieted! ##"
+}
+
 case "$1" in
 
-  deploy)
-    deploy
+  build)
+    build
     ;;
   k8s_deploy)
     k8s_deploy
@@ -53,6 +64,6 @@ case "$1" in
     k8s_delete
     ;;
 *)
-  echo "Usage: $0 {deploy | k8s_deploy | k8s_delete}"
+  echo "Usage: $0 {build | k8s_deploy | k8s_delete}"
 esac
 exit 0

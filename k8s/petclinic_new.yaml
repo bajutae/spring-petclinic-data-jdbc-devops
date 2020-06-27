@@ -12,7 +12,7 @@ spec:
     protocol: TCP
   selector:
     run: petclinic
-    version: v1
+    version: v2
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -27,19 +27,19 @@ spec:
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-    type: RollingUpdate
+    type: RollingUpdate  
   template:
     metadata:
       labels:
         run: petclinic
-        version: v1
+        version: v2
     spec:
       securityContext:
         runAsUser: 1000
       terminationGracePeriodSeconds: 30
       containers:
       - name: petclinic
-        image: bajutae/petclinic:1.0
+        image: bajutae/petclinic:1.1
         ports:
         - containerPort: 8080
         livenessProbe:

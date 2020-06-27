@@ -24,11 +24,16 @@ Server Version: version.Info{Major:"1", Minor:"16+", GitVersion:"v1.16.6-beta.0"
 ## 요구사항
 - [x] gradle을 사용하여 어플리케이션과 도커이미지를 빌드한다.
   - maven -> gradle 변환
+  ```
+  gradle init --type pom
+  ```
+  - build.gradle 빌드 실패하지 않게 수정 작업
 - [x] 어플리케이션의 log는 host의 /logs 디렉토리에 적재되도록 한다.
   - application.property에 다음 항목 추가 logging.file.path=/logs
   - Dockerfile 에 **VOLUME ["/logs"]** 추가
   - log 확인
-  ```
+
+```
   MacBook-Pro-2:spring-petclinic-data-jdbc-devops jtpark$ k get po
 NAME                         READY   STATUS    RESTARTS   AGE
 mysql-dccdc87c4-dlphk        1/1     Running   0          3m44s
@@ -51,16 +56,43 @@ spring.log
 2020-06-27 03:12:31.005  INFO [,,,] 1 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
 2020-06-27 03:12:31.007  INFO [,,,] 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
 2020-06-27 03:12:31.062  INFO [,,,] 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 54 ms
-  ```
+```
 
-- [ ] 정상 동작 여부를 반환하는 api를 구현하며, 10초에 한번 체크하도록 한다. 3번 연속 체크에 실패하 면 어플리케이션은 restart 된다.
-  - 음 저기 만들걸 참고 하자
-- [ ] 종료 시 30초 이내에 프로세스가 종료되지 않으면 SIGKILL로 강제 종료 시킨다.
-  - 어떻게 ???
+- [x] 정상 동작 여부를 반환하는 api를 구현하며, 10초에 한번 체크하도록 한다. 3번 연속 체크에 실패하 면 어플리케이션은 restart 된다.
+  - 컨테이너 설정에서 liveness를 설정한다. 스프링부트의 api를 이용한다. 
+
+```
+livenessProbe:
+          httpGet:
+            path: /actuator/liveness
+            port: 80
+          initialDelaySeconds: 130
+          periodSeconds: 10
+          failureThreshold: 3
+```
+
+- [X] 종료 시 30초 이내에 프로세스가 종료되지 않으면 SIGKILL로 강제 종료 시킨다.
+  - **terminationGracePeriodSeconds: 30** 30초 후에 강제로 삭제된다. 
 - [ ] 배포 시와 scale in/out 시 유실되는 트래픽이 없어야 한다.
   - 블루/그린 ? 아니면 그냥 롤링 업데이트 ?
 - [X] 어플리케이션 프로세스는 root 계정이 아닌 uid:1000으로 실행한다.
-  - petclinic에 uid를 1000 함
+  - petclinic.yaml 파일에 securityContext runAsUser: 1000 추가
+  - 다음으로 확인
+
+```
+MacBook-Pro-2:init jtpark$ k get pod
+NAME                        READY   STATUS    RESTARTS   AGE
+mysql-dccdc87c4-q4mj5       1/1     Running   0          2m8s
+petclinic-c66db4749-6kvpz   1/1     Running   0          12s
+petclinic-c66db4749-6ncbb   1/1     Running   0          12s
+petclinic-c66db4749-hdbh7   1/1     Running   0          12s
+MacBook-Pro-2:init jtpark$ k exec -it petclinic-c66db4749-6kvpz sh
+/ $ 
+/ $ 
+/ $ id
+uid=1000 gid=0(root)
+```
+
 - [ ] DB도 kubernetes에서 실행하며 재 실행 시에도 변경된 데이터는 유실되지 않도록 설정한다. 어플리케이션과 DB는 cluster domain을 이용하여 통신한다.
   - statefulset으로 처리
   - cluster domain 처리가 안됨
