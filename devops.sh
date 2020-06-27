@@ -38,18 +38,34 @@ k8s_delete() {
   kubectl delete svc,deploy,configmap mysql
   kubectl delete namespace ingress-nginx
   echo
-  echo "## k8s Delete Complieted! ##"
+  echo "## k8s Delete Completed! ##"
 }
 
 petclinic_deploy() {
   echo
   echo "## Deploy petclinic v2 ##"
+  kubectl apply -f ./k8s/petclinic_new.yaml
   echo
-  kubectl delete svc,deploy petclinic
-  kubectl delete svc,deploy,configmap mysql
-  kubectl delete namespace ingress-nginx
   echo
-  echo "## k8s Delete Complieted! ##"
+  echo "## k8s Deploy Completed! ##"
+}
+
+petclinic_scale_in() {
+  echo
+  echo "## Scale-in petclinic ##"
+  kubectl scale deploy petclinic --replicas=1
+  kubectl get deploy petclinic
+  echo
+  echo "## Completed Scale-in petclinic ##"
+}
+
+petclinic_scale_out() {
+  echo
+  echo "## Scale-out petclinic ##"
+  kubectl scale deploy petclinic --replicas=3
+  kubectl get deploy petclinic
+  echo
+  echo "## Completed Scale-out petclinic ##"
 }
 
 case "$1" in
@@ -63,7 +79,17 @@ case "$1" in
   k8s_delete)
     k8s_delete
     ;;
+  petclinic_deploy)
+    petclinic_deploy
+    ;;
+  petclinic_scale_in)
+    petclinic_scale_in
+    ;;
+  petclinic_scale_out)
+    petclinic_scale_out
+    ;;
+
 *)
-  echo "Usage: $0 {build | k8s_deploy | k8s_delete}"
+  echo "Usage: $0 {build | k8s_deploy | k8s_delete | petclinic_deploy | petclinic_scale_in | petclinic_scale_out}"
 esac
 exit 0

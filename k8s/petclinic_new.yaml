@@ -46,6 +46,6 @@ spec:
           httpGet:
             path: /actuator/liveness
             port: 8080
-          initialDelaySeconds: 130
+          initialDelaySeconds: 200
           periodSeconds: 10
           failureThreshold: 3

@@ -11,15 +11,21 @@
 - Mac OS Catalina
 - git version 2.24.3 (Apple Git-128)
 - Gradle 6.5
+- Docker desktop Community Mac
+  -  Version: 19.03.8
 - java
   - openjdk version "12.0.1" 2019-04-16
   - OpenJDK Runtime Environment (build 12.0.1+12)
   - OpenJDK 64-Bit Server VM (build 12.0.1+12, mixed mode, sharing)
-- kubernetes
-  - Client Version: version.Info{Major:"1", Minor:"16", GitVersion:"v1.16.0", GitCommit:"2bd9643cee5b3b3a5ecbd3af49d09018f0773c77", GitTreeState:"clean", BuildDate:"2019-09-18T14:36:53Z", GoVersion:"go1.12.9", Compiler:"gc", Platform:"darwin/amd64"}
-Server Version: version.Info{Major:"1", Minor:"16+", GitVersion:"v1.16.6-beta.0", GitCommit:"e7f962ba86f4ce7033828210ca3556393c377bcc", GitTreeState:"clean", BuildDate:"2020-01-15T08:18:29Z", GoVersion:"go1.13.5", Compiler:"gc", Platform:"linux/amd64"}
+- kubernetes - Docker desktop Community Mac
+  - 1.16.5
 - vscode 
+- docker repository: docker hub - 빌드된 거 두가지 버전으로 업로드
+  - bajutae/petclinic:1.0
+  - bajutae/petclinic:1.1
 ---
+
+## 
 
 ## 요구사항
 - [x] gradle을 사용하여 어플리케이션과 도커이미지를 빌드한다.
@@ -33,7 +39,7 @@ Server Version: version.Info{Major:"1", Minor:"16+", GitVersion:"v1.16.6-beta.0"
   - Dockerfile 에 **VOLUME ["/logs"]** 추가
   - log 확인
 
-```
+```shell
   MacBook-Pro-2:spring-petclinic-data-jdbc-devops jtpark$ k get po
 NAME                         READY   STATUS    RESTARTS   AGE
 mysql-dccdc87c4-dlphk        1/1     Running   0          3m44s
@@ -61,7 +67,7 @@ spring.log
 - [x] 정상 동작 여부를 반환하는 api를 구현하며, 10초에 한번 체크하도록 한다. 3번 연속 체크에 실패하 면 어플리케이션은 restart 된다.
   - 컨테이너 설정에서 liveness를 설정한다. 스프링부트의 api를 이용한다. 
 
-```
+```shell
 livenessProbe:
           httpGet:
             path: /actuator/liveness
@@ -73,13 +79,13 @@ livenessProbe:
 
 - [X] 종료 시 30초 이내에 프로세스가 종료되지 않으면 SIGKILL로 강제 종료 시킨다.
   - **terminationGracePeriodSeconds: 30** 30초 후에 강제로 삭제된다. 
-- [ ] 배포 시와 scale in/out 시 유실되는 트래픽이 없어야 한다.
-  - 블루/그린 ? 아니면 그냥 롤링 업데이트 ?
+- [X] 배포 시와 scale in/out 시 유실되는 트래픽이 없어야 한다.
+  - 배포시 Roling update와 블루/그린 배포로 트래픽 유실없이 실행
 - [X] 어플리케이션 프로세스는 root 계정이 아닌 uid:1000으로 실행한다.
   - petclinic.yaml 파일에 securityContext runAsUser: 1000 추가
   - 다음으로 확인
 
-```
+```shell
 MacBook-Pro-2:init jtpark$ k get pod
 NAME                        READY   STATUS    RESTARTS   AGE
 mysql-dccdc87c4-q4mj5       1/1     Running   0          2m8s
