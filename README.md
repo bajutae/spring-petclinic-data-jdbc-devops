@@ -7,7 +7,6 @@
 - kubernetes에 배포하기 위한 manifest 파일을 작성하십시오.
 
 ## 테스트 환경
----
 - Mac OS Catalina
 - git version 2.24.3 (Apple Git-128)
 - Gradle 6.5
@@ -23,7 +22,6 @@
 - docker repository: docker hub - 빌드된 거 두가지 버전으로 업로드
   - bajutae/petclinic:1.0
   - bajutae/petclinic:1.1
----
 
 ## 
 
